@@ -1,0 +1,33 @@
+# 环境变量（含真实密钥，绝不入库）
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+logs/
+*.log
+
+# 会话工作区与产物
+output/
+outputs/
+dist/
+
+# 评测结果（逐题产物体量大，只保留总表与报告）
+eval/pool/
+eval/results/*/*
+!eval/results/*/report.md
+!eval/results/*/summary.csv
+!eval/results/*/meta.json
+eval/reports/
+eval/.cache/
+
+# 前端
+node_modules/
+
+# 编辑器与系统
+.idea/
+.vscode/
+.DS_Store

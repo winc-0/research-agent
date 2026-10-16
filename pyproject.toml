@@ -1,0 +1,33 @@
+[project]
+name = "zhixun"
+version = "0.1.0"
+description = "物流研究助手 Research-Agent：面向研究型问答的多智能体深度检索系统（规划 → 三路并行取证的证据编排 → 有界审查 → 带引用的报告）"
+requires-python = ">=3.11,<3.13"
+# 只声明真正用到的依赖：
+# - 不装 torch / FlagEmbedding：知识库取证走履约知识助手服务，不在本地复刻 BGE-M3 编码
+# - 不装 pymilvus / asyncmy：不直连任何存储，三路取证全部走 HTTP，
+#   这也让「某个服务挂了」成为一种可演练的降级场景，而不是整条链路崩溃
+dependencies = [
+    # --- 编排与模型 ---
+    "langgraph==1.0.7",
+    "langchain==1.2.7",
+    "langchain-openai==1.7.2",
+    # --- 服务 ---
+    "fastapi[standard]",
+    "uvicorn",
+    # --- 取证工具 ---
+    "httpx",
+    # --- 基础设施 ---
+    "python-dotenv",
+    "loguru",
+]
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio",
+]
+
+# 平铺布局（app/ scripts/ tests/ 同级），setuptools 无法自动推断顶层包，
+# 这里显式声明，否则 `pip install -e .` 会报 "Multiple top-level packages discovered"。
+[tool.setuptools]
+packages = ["app"]
