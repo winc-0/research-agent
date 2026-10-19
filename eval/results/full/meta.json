@@ -1,0 +1,15 @@
+{
+ "run_id": "full",
+ "items": 40,
+ "variants": [
+  "G1",
+  "G2",
+  "G3",
+  "G4",
+  "G5",
+  "G6"
+ ],
+ "main_model": "qwen-flash",
+ "judge_model": "qwen-flash",
+ "judged": true
+}
