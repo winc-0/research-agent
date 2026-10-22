@@ -9,7 +9,8 @@
     --ids k01,s01,m01     只跑指定题
     --variants G1,G5      只跑指定变体
     --no-judge            跳过 LLM 判分（只看规则指标，零模型成本）
-    --model qwen-plus     主链模型（默认用便宜的 eval 型号）
+    --model qwen-plus     被测主链模型（默认用便宜的 eval 型号）
+    --judge-model qwen-plus  判分模型（默认 LLM_JUDGE_MODEL_NAME，刻意与被测模型分开）
     --run-id 20261020_1   复用/指定产物目录
 
 产物在 eval/results/<run-id>/：每组一个 JSON、summary.csv、report.md。
@@ -83,19 +84,27 @@ async def cmd_replay(args) -> int:
     out_dir = RESULTS / run_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    judge_model = settings.llm.judge_model_name
+
     # 把当次用的模型记下来。报表要照实写，否则「用 flash 跑出来的数」会被当成 plus 的
     metrics.write_json(out_dir / "meta.json", {
         "run_id": run_id,
         "items": len(items),
         "variants": [v.id for v in variants],
         "main_model": settings.llm.model_name,
-        "judge_model": settings.llm.eval_model_name if args.judge else "",
+        "judge_model": judge_model if args.judge else "",
         "judged": bool(args.judge),
+        # 同族模型自评会系统性地抬高分数，这一位必须在产物里留痕，
+        # 否则日后回看这份报告，没人知道当时的判分器是不是被测模型自己
+        "judge_same_as_main": bool(args.judge) and judge_model == settings.llm.model_name,
     })
 
     print(f"回放 {len(variants)} 组 × {len(items)} 题，产物目录 {out_dir}")
-    print(f"主链模型 {settings.llm.model_name}，判分模型 {settings.llm.eval_model_name}"
-          if args.judge else f"主链模型 {settings.llm.model_name}，跳过判分")
+    if args.judge:
+        same = " ⚠ 判分模型与主链相同，存在自我偏好偏差" if judge_model == settings.llm.model_name else ""
+        print(f"主链模型 {settings.llm.model_name}，判分模型 {judge_model}{same}")
+    else:
+        print(f"主链模型 {settings.llm.model_name}，跳过判分")
 
     items_by_id = {i.id: i for i in items}
     summaries = []
@@ -145,7 +154,7 @@ def _write_report(out_dir: Path, summaries, items, run_id: str) -> None:
         f"- 题库：`eval/qa_set.jsonl`，共 {len(items)} 题",
         "- 取证：录制一次后所有变体回放同一证据池（证据相同，差异只来自编排）",
         f"- 主链模型：`{meta.get('main_model') or settings.llm.model_name}`",
-        f"- 判分模型：`{meta.get('judge_model') or settings.llm.eval_model_name}`（0~2 分，三项均分）",
+        f"- 判分模型：`{meta.get('judge_model') or settings.llm.judge_model_name}`（0~2 分，三项均分）",
         "- 回放耗时不含取证：真实端到端是 20~100 秒，此列只能横向比较各组多花的模型时间",
         "",
         "## 总表",
@@ -247,7 +256,10 @@ def main() -> int:
     p_rep.add_argument("--no-judge", dest="judge", action="store_false", help="跳过 LLM 判分")
     p_rep.add_argument("--judge-concurrency", type=int, default=4)
     p_rep.add_argument("--run-id", help="产物目录名")
-    p_rep.add_argument("--model", help="主链模型，默认用 LLM_EVAL_MODEL_NAME")
+    p_rep.add_argument("--model", help="主链模型（被测），默认用 LLM_EVAL_MODEL_NAME")
+    p_rep.add_argument("--judge-model", dest="judge_model",
+                       help="判分模型，默认用 LLM_JUDGE_MODEL_NAME（qwen-plus）。"
+                            "刻意与被测模型分开：自己给自己打分会有自我偏好偏差")
     p_rep.set_defaults(judge=True)
 
     p_rep2 = sub.add_parser("report", help="用已有产物重新出表")
@@ -264,6 +276,10 @@ def main() -> int:
     elif args.cmd == "replay":
         # 默认换成便宜型号：消融比较的是相对差异，主链全用 plus 会让成本翻几倍
         settings.llm.model_name = settings.llm.eval_model_name
+
+    # 判分模型单独指定，**不跟随主链**：让被测模型给自己打分等于既当运动员又当裁判
+    if getattr(args, "judge_model", None):
+        settings.llm.judge_model_name = args.judge_model
 
     if args.cmd == "replay":
         return asyncio.run(cmd_replay(args))

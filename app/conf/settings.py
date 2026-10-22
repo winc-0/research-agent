@@ -51,8 +51,18 @@ class LLMConfig:
     timeout: float = field(default_factory=lambda: _env_float("LLM_TIMEOUT", 120))
     max_retries: int = 2
 
-    # 评测专用型号：默认 qwen-flash，全量跑一輪能省一个数量级的钱
+    # 评测时"被测主链"的型号：默认 qwen-flash，全量跑一轮能省一个数量级的钱。
+    # 消融比较的是**相对差异**，用便宜型号跑出来的量级可以外推，但绝对值会偏低。
     eval_model_name: str = field(default_factory=lambda: _env("LLM_EVAL_MODEL_NAME", "qwen-flash"))
+
+    # 判分模型：LLM-as-judge 用的型号，**必须与被测主链分开**。
+    # 原来这里直接复用了 eval_model_name（默认 qwen-flash），而主链默认也是 qwen-flash，
+    # 等于让模型给自己写的报告打分，两个问题叠在一起：
+    #   1) 自我偏好偏差 —— 同族模型倾向于给同族输出更高分；
+    #   2) 判分能力不足 —— 0~2 分的三档 rubric 要判断"关键事实是否被覆盖"，
+    #      最便宜的档位做这种判别，噪声可能比信号大。
+    # 默认改成 qwen-plus，并留出独立开关，避免再被"省钱"顺手改回去。
+    judge_model_name: str = field(default_factory=lambda: _env("LLM_JUDGE_MODEL_NAME", "qwen-plus"))
 
 
 @dataclass
