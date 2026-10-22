@@ -49,7 +49,7 @@ async def judge_one(item, report: str, *, model: str | None = None) -> dict:
     )
 
     try:
-        reply = await llm_mod.ainvoke(prompt, model=model or settings.llm.eval_model_name)
+        reply = await llm_mod.ainvoke(prompt, model=model or settings.llm.judge_model_name)
         data = llm_mod.extract_json(reply.text)
     except Exception as e:  # noqa: BLE001 - 判分失败不该中断评测
         return {"faithfulness": None, "coverage": None, "honesty": None,
