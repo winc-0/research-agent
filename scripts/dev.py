@@ -130,7 +130,7 @@ def _spawn(cmd: list[str], cwd: Path, label: str) -> subprocess.Popen:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="物流研究助手 Research-Agent 开发态一键启动")
+    parser = argparse.ArgumentParser(description="物流研究助手 开发态一键启动")
     parser.add_argument("--no-frontend", action="store_true", help="只起后端")
     parser.add_argument("--skip-check", action="store_true", help="跳过体检")
     parser.add_argument("--backend-port", type=int, default=BACKEND_PORT, help=f"后端端口（默认 {BACKEND_PORT}）")
@@ -140,7 +140,7 @@ def main() -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-    _say("物流研究助手 Research-Agent · 开发态启动")
+    _say("物流研究助手 · 开发态启动")
 
     if not args.skip_check:
         check()

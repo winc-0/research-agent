@@ -98,7 +98,7 @@ def _save(report: str, path: Path | None) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="物流研究助手 Research-Agent：多智能体深度研究")
+    parser = argparse.ArgumentParser(description="物流研究助手：多智能体深度研究")
     parser.add_argument("question", nargs="*", help="研究问题")
     parser.add_argument("--save", type=Path, default=None, help="报告保存路径")
     parser.add_argument("--quiet", action="store_true", help="只输出报告正文")
