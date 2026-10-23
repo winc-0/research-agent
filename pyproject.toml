@@ -1,7 +1,7 @@
 [project]
 name = "zhixun"
 version = "0.1.0"
-description = "物流研究助手 Research-Agent：面向研究型问答的多智能体深度检索系统（规划 → 三路并行取证的证据编排 → 有界审查 → 带引用的报告）"
+description = "物流研究助手：面向研究型问答的多智能体深度检索系统（规划 → 三路并行取证的证据编排 → 有界审查 → 带引用的报告）"
 requires-python = ">=3.11,<3.13"
 # 只声明真正用到的依赖：
 # - 不装 torch / FlagEmbedding：知识库取证走履约知识助手服务，不在本地复刻 BGE-M3 编码

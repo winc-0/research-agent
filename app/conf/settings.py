@@ -81,7 +81,7 @@ class WebSearchConfig:
 @dataclass
 class KBConfig:
     """
-    内部知识库：复用履约知识助手 Warehouse-KB 的检索服务。
+    内部知识库：复用履约知识助手 的检索服务。
 
     为什么不自己连 Milvus？履约知识助手 collection 里的向量是 BGE-M3（1024 维）生成的，
     物流研究助手要检索同一个 collection 就必须用同一个模型编码，等于要把 torch +
@@ -96,7 +96,7 @@ class KBConfig:
 @dataclass
 class SQLConfig:
     """
-    结构化数据：复用仓配自助问数 LogiQL 的问数服务。
+    结构化数据：复用仓配自助问数 的问数服务。
 
     为什么不自己连 MySQL 生成 SQL？NL2SQL 的难点不在执行，
     而在「从 32 张表里挑对字段」——那需要元数据召回（Qdrant 字段/指标向量 + ES 取值），

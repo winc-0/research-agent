@@ -149,7 +149,7 @@ def _write_report(out_dir: Path, summaries, items, run_id: str) -> None:
         full_rows = json.loads(full_path.read_text(encoding="utf-8"))
 
     lines = [
-        f"# 物流研究助手 Research-Agent 编排层消融实验（{run_id}）",
+        f"# 物流研究助手 编排层消融实验（{run_id}）",
         "",
         f"- 题库：`eval/qa_set.jsonl`，共 {len(items)} 题",
         "- 取证：录制一次后所有变体回放同一证据池（证据相同，差异只来自编排）",

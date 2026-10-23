@@ -41,7 +41,7 @@ from app.conf.settings import settings
 from app.core.bus import reset_sink, set_sink
 from app.core.log import logger
 
-app = FastAPI(title="物流研究助手 Research-Agent", description="多智能体深度研究服务")
+app = FastAPI(title="物流研究助手", description="多智能体深度研究服务")
 
 # HITL 挂起需要把图中途的状态存住，恢复时再取出来。
 # 进程内内存版够演示用；要跨重启续跑得换 SqliteSaver。
